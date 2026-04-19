@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clasificador de Tickets - Soporte</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎫 Sistema de Clasificación de Tickets</h1>
+            <p>Clasificador automático usando Naïve Bayes</p>
+        </header>
+
+        <main>
+            <div class="form-section">
+                <h2>Ingresa tu Ticket de Soporte</h2>
+                
+                <form id="ticketForm">
+                    <div class="form-group">
+                        <label for="ticketText">Descripción del Problema:</label>
+                        <textarea 
+                            id="ticketText" 
+                            name="text" 
+                            rows="8" 
+                            placeholder="Ejemplo: No puedo acceder a mi cuenta. Me aparece un error de credenciales inválidas..."
+                            required
+                        ></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-primary">
+                        Clasificar Ticket
+                    </button>
+                </form>
+            </div>
+
+            <div id="result" class="result-section hidden">
+                <h2>Resultado de la Clasificación</h2>
+                
+                <div class="result-card">
+                    <div class="categoria-result">
+                        <span class="label">Categoría:</span>
+                        <span id="categoria" class="categoria-tag"></span>
+                    </div>
+                    
+                    <div class="confianza-result">
+                        <span class="label">Confianza:</span>
+                        <span id="confianza" class="confianza-value"></span>
+                    </div>
+                </div>
+
+                <div class="probabilidades-section">
+                    <h3>Probabilidades por Categoría</h3>
+                    <div id="probabilidades" class="probabilidades-list"></div>
+                </div>
+
+                <button onclick="resetForm()" class="btn-secondary">
+                    Clasificar Otro Ticket
+                </button>
+            </div>
+
+            <div id="loading" class="loading hidden">
+                <div class="spinner"></div>
+                <p>Clasificando ticket...</p>
+            </div>
+
+            <div id="error" class="error-section hidden">
+                <p id="errorMessage"></p>
+                <button onclick="resetForm()" class="btn-secondary">
+                    Intentar de Nuevo
+                </button>
+            </div>
+        </main>
+
+        <footer>
+            <p>Proyecto de Inteligencia Artificial - Universidad Rafael Landívar</p>
+            <p>Implementación desde cero de Naïve Bayes</p>
+        </footer>
+    </div>
+
+    <script>
+        const form = document.getElementById('ticketForm');
+        const resultDiv = document.getElementById('result');
+        const loadingDiv = document.getElementById('loading');
+        const errorDiv = document.getElementById('error');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const text = document.getElementById('ticketText').value;
+            
+            // Mostrar loading
+            document.querySelector('.form-section').classList.add('hidden');
+            loadingDiv.classList.remove('hidden');
+            resultDiv.classList.add('hidden');
+            errorDiv.classList.add('hidden');
+            
+            try {
+                const response = await fetch('/predecir', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ text: text })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Error en la predicción');
+                }
+                
+                // Mostrar resultado
+                document.getElementById('categoria').textContent = data.categoria;
+                document.getElementById('confianza').textContent = 
+                    `${(data.confianza * 100).toFixed(1)}%`;
+                
+                // Mostrar probabilidades
+                const probDiv = document.getElementById('probabilidades');
+                probDiv.innerHTML = '';
+                
+                for (const [clase, prob] of Object.entries(data.probabilidades)) {
+                    const barWidth = (prob * 100).toFixed(1);
+                    probDiv.innerHTML += `
+                        <div class="prob-item">
+                            <span class="prob-label">${clase}</span>
+                            <div class="prob-bar-container">
+                                <div class="prob-bar" style="width: ${barWidth}%"></div>
+                            </div>
+                            <span class="prob-value">${barWidth}%</span>
+                        </div>
+                    `;
+                }
+                
+                loadingDiv.classList.add('hidden');
+                resultDiv.classList.remove('hidden');
+                
+            } catch (error) {
+                loadingDiv.classList.add('hidden');
+                errorDiv.classList.remove('hidden');
+                document.getElementById('errorMessage').textContent = 
+                    `Error: ${error.message}`;
+            }
+        });
+
+        function resetForm() {
+            document.querySelector('.form-section').classList.remove('hidden');
+            resultDiv.classList.add('hidden');
+            errorDiv.classList.add('hidden');
+            document.getElementById('ticketText').value = '';
+        }
+    </script>
+</body>
+</html>s
