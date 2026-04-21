@@ -21,13 +21,11 @@ class ProcesadorTexto:
         self.min_word_length = min_word_length
 
     def limpiar_texto(self, texto):
-        if not isinstance(texto, str):
-            texto = str(texto)
-
         #Convertir texto a minúsculas
         texto = texto.lower()
 
         #Remover placeholders
+        texto = re.sub(r'\{\{[^}]+\}\}', '', texto)
         texto = re.sub(r'\{[^}]+\}', '', texto)
 
         #Remover URLS
@@ -40,35 +38,18 @@ class ProcesadorTexto:
         texto = re.sub(r'\d+', '', texto)
 
         #Remover puntuación
-        texto = texto.translate(str.maketrans('', '', string.punctuation))
+        texto = re.sub(r'[^\w\s]', ' ', texto)
 
         #Tokenizar texto
         tokens = word_tokenize(texto)
 
-        #Remover stop words, palabras cortas y aplicar stemming
-        tokens = [
-            self.stemmer.stem(palabra)
-            for palabra in tokens
-            if palabra not in self.stop_words and len(palabra) > self.min_word_length
-        ]
+        # Eliminar stopwords
+        tokens = [palabra for palabra in tokens if palabra not in self.stop_words]
+    
+        # Aplicar stemming
+        tokens = [self.stemmer.stem(palabra) for palabra in tokens]
+    
+        # Eliminar tokens muy cortos
+        tokens = [palabra for palabra in tokens if len(palabra) > 2]
 
         return tokens
-    
-if __name__ == "__main__":
-    procesador = ProcesadorTexto()
-
-    ejemplos = [
-        "I'm having an issue with the {product_purchased}. Please assist.",
-        "I want to cancel my subscription immediately. Please process refund.",
-        "How do I reset my password? I can't login to my account.",
-        "I was charged twice for the same purchase. Need refund ASAP!",
-        "What are your business hours? I have a question about pricing."
-    ]
-
-    print("Prueba del Preprocesador de Texto:")
-    
-    for i, ejemplo in enumerate(ejemplos, 1):
-        tokens = procesador.limpiar_texto(ejemplo)
-        print(f"\n--- Ejemplo {i} ---")
-        print(f"Original: {ejemplo}")
-        print(f"Tokens ({len(tokens)}): {tokens}")

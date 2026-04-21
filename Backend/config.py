@@ -1,13 +1,19 @@
-dataset = 'data/customer_support_tickets.csv'
-columna_categorica = 'Ticket Type'
-columna_texto = 'Ticket Description'
+dataset = 'data/bitext_customer_support.csv'
+columna_categorica = 'category'
+columna_texto = 'instruction'
 
 categorias = [
-    'Refund request',
-    'Technical issue',
-    'Cancellation request',
-    'Product inquiry',
-    'Billing inquiry'
+    'ACCOUNT',
+    'CANCEL',
+    'CONTACT',
+    'DELIVERY',
+    'FEEDBACK',
+    'INVOICE',
+    'ORDER',
+    'PAYMENT',
+    'REFUND',
+    'SHIPPING',
+    'SUBSCRIPTION'
 ]
 
 laplace_alpha = 1.0

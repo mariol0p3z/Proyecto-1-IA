@@ -3,60 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clasificador de Tickets - Soporte</title>
+    <title>Sistema de Clasificación de Tickets</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="container">
         <header>
             <h1>🎫 Sistema de Clasificación de Tickets</h1>
-            <p>Clasificador automático usando Naïve Bayes</p>
+            <p>Clasificador automático usando Naïve Bayes - Accuracy: 99.1%</p>
         </header>
 
         <main>
             <div class="form-section">
-                <h2>Ingresa tu Ticket de Soporte</h2>
+                <h2>📋 Crear Nuevo Ticket de Soporte</h2>
                 
                 <form id="ticketForm">
+                    <!-- Ticket ID (autogenerado) -->
                     <div class="form-group">
-                        <label for="ticketText">Descripción del Problema:</label>
+                        <label for="ticketId">🆔 ID del Ticket:</label>
+                        <input 
+                            type="text" 
+                            id="ticketId" 
+                            name="ticketId" 
+                            value="TKT-000001" 
+                            readonly
+                            class="readonly-input"
+                        >
+                    </div>
+
+                    <!-- Subject -->
+                    <div class="form-group">
+                        <label for="ticketSubject">📧 Asunto del Ticket:</label>
+                        <input 
+                            type="text" 
+                            id="ticketSubject" 
+                            name="subject" 
+                            placeholder="Ej: Problema con mi pedido #12345"
+                            required
+                        >
+                    </div>
+
+                    <!-- Description -->
+                    <div class="form-group">
+                        <label for="ticketText">📝 Descripción Detallada:</label>
                         <textarea 
                             id="ticketText" 
                             name="text" 
-                            rows="8" 
-                            placeholder="Ejemplo: No puedo acceder a mi cuenta. Me aparece un error de credenciales inválidas..."
+                            rows="6" 
+                            placeholder="Ej: Realicé un pedido hace 10 días pero aún no ha llegado. El número de seguimiento no funciona y necesito saber el estado de mi envío..."
                             required
                         ></textarea>
                     </div>
 
                     <button type="submit" class="btn-primary">
-                        Clasificar Ticket
+                        🔍 Clasificar Ticket
                     </button>
                 </form>
             </div>
 
             <div id="result" class="result-section hidden">
-                <h2>Resultado de la Clasificación</h2>
+                <h2>✅ Resultado de la Clasificación</h2>
                 
+                <div class="ticket-info">
+                    <p><strong>Ticket ID:</strong> <span id="resultTicketId"></span></p>
+                </div>
+
                 <div class="result-card">
                     <div class="categoria-result">
-                        <span class="label">Categoría:</span>
+                        <span class="label">Categoría Asignada:</span>
                         <span id="categoria" class="categoria-tag"></span>
                     </div>
                     
                     <div class="confianza-result">
-                        <span class="label">Confianza:</span>
+                        <span class="label">Confianza del Modelo:</span>
                         <span id="confianza" class="confianza-value"></span>
+                    </div>
+
+                    <div class="routing-info">
+                        <p>📬 <strong>Enrutado a:</strong> <span id="departamento"></span></p>
                     </div>
                 </div>
 
                 <div class="probabilidades-section">
-                    <h3>Probabilidades por Categoría</h3>
+                    <h3>📊 Probabilidades por Categoría</h3>
                     <div id="probabilidades" class="probabilidades-list"></div>
                 </div>
 
                 <button onclick="resetForm()" class="btn-secondary">
-                    Clasificar Otro Ticket
+                    ➕ Clasificar Otro Ticket
                 </button>
             </div>
 
@@ -68,14 +102,14 @@
             <div id="error" class="error-section hidden">
                 <p id="errorMessage"></p>
                 <button onclick="resetForm()" class="btn-secondary">
-                    Intentar de Nuevo
+                    🔄 Intentar de Nuevo
                 </button>
             </div>
         </main>
 
         <footer>
             <p>Proyecto de Inteligencia Artificial - Universidad Rafael Landívar</p>
-            <p>Implementación desde cero de Naïve Bayes</p>
+            <p>Naïve Bayes implementado desde cero | Dataset: Bitext Customer Support (26,872 muestras)</p>
         </footer>
     </div>
 
@@ -85,10 +119,33 @@
         const loadingDiv = document.getElementById('loading');
         const errorDiv = document.getElementById('error');
 
+        // Mapeo de categorías a departamentos
+        const departamentos = {
+            'ACCOUNT': 'Departamento de Cuentas',
+            'CANCEL': 'Departamento de Cancelaciones',
+            'CONTACT': 'Servicio al Cliente',
+            'DELIVERY': 'Departamento de Entregas',
+            'FEEDBACK': 'Departamento de Retroalimentación',
+            'INVOICE': 'Departamento de Facturación',
+            'ORDER': 'Departamento de Pedidos',
+            'PAYMENT': 'Departamento de Pagos',
+            'REFUND': 'Departamento de Reembolsos',
+            'SHIPPING': 'Departamento de Envíos',
+            'SUBSCRIPTION': 'Departamento de Suscripciones'
+        };
+
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             
+            const ticketId = document.getElementById('ticketId').value;
+            const subject = document.getElementById('ticketSubject').value;
             const text = document.getElementById('ticketText').value;
+            
+            // Combinar subject + text para clasificación
+            const fullText = subject + ". " + text;
+            
+            console.log('📝 Ticket ID:', ticketId);
+            console.log('📝 Texto completo:', fullText);
             
             // Mostrar loading
             document.querySelector('.form-section').classList.add('hidden');
@@ -97,24 +154,38 @@
             errorDiv.classList.add('hidden');
             
             try {
-                const response = await fetch('/predecir', {
+                const response = await fetch('/predict', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ text: text })
+                    body: JSON.stringify({ 
+                        ticketId: ticketId,
+                        subject: subject,
+                        text: fullText
+                    })
                 });
                 
                 const data = await response.json();
+                console.log('📊 Respuesta del servidor:', data);
                 
                 if (!response.ok) {
                     throw new Error(data.error || 'Error en la predicción');
                 }
                 
-                // Mostrar resultado
+                // Mostrar Ticket ID
+                document.getElementById('resultTicketId').textContent = ticketId;
+                
+                // Mostrar categoría
                 document.getElementById('categoria').textContent = data.categoria;
+                
+                // Mostrar confianza
                 document.getElementById('confianza').textContent = 
                     `${(data.confianza * 100).toFixed(1)}%`;
+                
+                // Mostrar departamento
+                document.getElementById('departamento').textContent = 
+                    departamentos[data.categoria] || 'Departamento General';
                 
                 // Mostrar probabilidades
                 const probDiv = document.getElementById('probabilidades');
@@ -137,6 +208,7 @@
                 resultDiv.classList.remove('hidden');
                 
             } catch (error) {
+                console.error('❌ Error:', error);
                 loadingDiv.classList.add('hidden');
                 errorDiv.classList.remove('hidden');
                 document.getElementById('errorMessage').textContent = 
@@ -148,8 +220,19 @@
             document.querySelector('.form-section').classList.remove('hidden');
             resultDiv.classList.add('hidden');
             errorDiv.classList.add('hidden');
+            
+            // Auto-incrementar Ticket ID
+            const currentId = parseInt(document.getElementById('ticketId').value.split('-')[1]);
+            const newId = 'TKT-' + String(currentId + 1).padStart(6, '0');
+            document.getElementById('ticketId').value = newId;
+            
+            // Limpiar campos
+            document.getElementById('ticketSubject').value = '';
             document.getElementById('ticketText').value = '';
+            
+            // Focus en el subject
+            document.getElementById('ticketSubject').focus();
         }
     </script>
 </body>
-</html>s
+</html>

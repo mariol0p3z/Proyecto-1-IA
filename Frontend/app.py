@@ -28,7 +28,7 @@ except Exception as e:
 def home():
     return render_template('index.html')
 
-@app.route('/predecir', methods=['POST'])
+@app.route('/predict', methods=['POST'])
 def predecir():
     try:
         #Obtener datos del request

@@ -12,7 +12,7 @@ body {
 }
 
 .container {
-    max-width: 800px;
+    max-width: 900px;
     margin: 0 auto;
     background: white;
     border-radius: 20px;
@@ -44,11 +44,12 @@ main {
 .form-section h2,
 .result-section h2 {
     color: #333;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
+    font-size: 1.5em;
 }
 
 .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 25px;
 }
 
 label {
@@ -56,6 +57,33 @@ label {
     font-weight: 600;
     margin-bottom: 8px;
     color: #555;
+    font-size: 1em;
+}
+
+/* Campos de input */
+input[type="text"] {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 10px;
+    font-size: 1em;
+    font-family: inherit;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+input[type="text"]:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Campo readonly (Ticket ID) */
+.readonly-input {
+    background-color: #f8f9fa;
+    color: #666;
+    cursor: not-allowed;
+    font-weight: 600;
+    font-family: 'Courier New', monospace;
 }
 
 textarea {
@@ -66,12 +94,14 @@ textarea {
     font-size: 1em;
     font-family: inherit;
     resize: vertical;
-    transition: border-color 0.3s;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    min-height: 120px;
 }
 
 textarea:focus {
     outline: none;
     border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .btn-primary, .btn-secondary {
@@ -95,10 +125,37 @@ textarea:focus {
     box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
 }
 
+.btn-primary:active {
+    transform: translateY(0);
+}
+
 .btn-secondary {
     background: #f0f0f0;
     color: #333;
     margin-top: 20px;
+    width: 100%;
+}
+
+.btn-secondary:hover {
+    background: #e0e0e0;
+}
+
+/* Ticket info en resultado */
+.ticket-info {
+    background: #f8f9fa;
+    padding: 15px 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border-left: 4px solid #667eea;
+}
+
+.ticket-info p {
+    margin: 0;
+    font-size: 1em;
+}
+
+.ticket-info strong {
+    color: #667eea;
 }
 
 .result-card {
@@ -109,28 +166,62 @@ textarea:focus {
 }
 
 .categoria-result, .confianza-result {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
 .label {
     font-weight: 600;
     color: #666;
     margin-right: 10px;
+    font-size: 1em;
 }
 
 .categoria-tag {
     display: inline-block;
-    padding: 8px 20px;
-    background: #667eea;
+    padding: 10px 25px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    border-radius: 20px;
-    font-weight: 600;
+    border-radius: 25px;
+    font-weight: 700;
+    font-size: 1.1em;
+    letter-spacing: 0.5px;
 }
 
 .confianza-value {
-    font-size: 1.5em;
+    font-size: 1.8em;
     font-weight: bold;
     color: #667eea;
+}
+
+/* Routing info */
+.routing-info {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 2px dashed #e0e0e0;
+}
+
+.routing-info p {
+    font-size: 1em;
+    margin: 0;
+}
+
+.routing-info strong {
+    color: #555;
+}
+
+.routing-info span {
+    color: #667eea;
+    font-weight: 600;
+}
+
+.probabilidades-section {
+    margin-top: 20px;
+}
+
+.probabilidades-section h3 {
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 1.2em;
 }
 
 .probabilidades-list {
@@ -139,34 +230,37 @@ textarea:focus {
 
 .prob-item {
     display: grid;
-    grid-template-columns: 180px 1fr 60px;
+    grid-template-columns: 150px 1fr 80px;
     align-items: center;
     gap: 15px;
     margin-bottom: 15px;
 }
 
 .prob-label {
-    font-weight: 500;
+    font-weight: 600;
     color: #555;
+    font-size: 0.95em;
 }
 
 .prob-bar-container {
     background: #e0e0e0;
-    height: 25px;
-    border-radius: 12px;
+    height: 28px;
+    border-radius: 14px;
     overflow: hidden;
 }
 
 .prob-bar {
     height: 100%;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    transition: width 0.5s ease;
+    transition: width 0.8s ease;
+    border-radius: 14px;
 }
 
 .prob-value {
     text-align: right;
-    font-weight: 600;
+    font-weight: 700;
     color: #667eea;
+    font-size: 1em;
 }
 
 .loading {
@@ -185,8 +279,22 @@ textarea:focus {
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% { 
+        transform: rotate(0deg);
+        border-top-color: #667eea;
+    }
+    50% {
+        border-top-color: #764ba2;
+    }
+    100% { 
+        transform: rotate(360deg);
+        border-top-color: #667eea;
+    }
+}
+
+.loading p {
+    color: #666;
+    font-size: 1.1em;
 }
 
 .error-section {
@@ -198,18 +306,79 @@ textarea:focus {
     color: #c33;
 }
 
+.error-section p {
+    font-size: 1.1em;
+    margin-bottom: 20px;
+}
+
 .hidden {
     display: none;
 }
 
 footer {
     background: #f8f9fa;
-    padding: 20px;
+    padding: 25px;
     text-align: center;
     color: #666;
     font-size: 0.9em;
+    border-top: 1px solid #e0e0e0;
 }
 
 footer p {
     margin: 5px 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        margin: 10px;
+        border-radius: 15px;
+    }
+
+    header h1 {
+        font-size: 1.8em;
+    }
+
+    header p {
+        font-size: 0.95em;
+    }
+
+    main {
+        padding: 25px 20px;
+    }
+
+    .prob-item {
+        grid-template-columns: 120px 1fr 70px;
+        gap: 10px;
+    }
+    
+    .prob-label {
+        font-size: 0.85em;
+    }
+    
+    input[type="text"],
+    textarea {
+        font-size: 16px; /* Evita zoom automático en móviles */
+    }
+
+    .categoria-tag {
+        font-size: 1em;
+        padding: 8px 20px;
+    }
+
+    .confianza-value {
+        font-size: 1.5em;
+    }
+}
+
+@media (max-width: 480px) {
+    .prob-item {
+        grid-template-columns: 1fr;
+        gap: 8px;
+        text-align: left;
+    }
+
+    .prob-value {
+        text-align: left;
+    }
 }
