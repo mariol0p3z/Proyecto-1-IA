@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import joblib
 import os
+import json
 from preprocesar import ProcesadorTexto
 from naive_bayes import NaiveBayes
 from metricas import calcular_metricas, matriz_confusion, imprimir_metricas, imprimir_matriz_confusion
@@ -73,16 +74,6 @@ def ejecutar_kfolds(X, y, k =5):
         modelo.entrenar(X_train, y_train)
 
         y_pred = modelo.predecir(X_test)
-
-        # ===== DEBUG: Agregar estas líneas =====
-        print(f"\n🔍 DEBUG Fold {i}:")
-        print(f"  Clases que el modelo aprendió: {modelo.clases}")
-        print(f"  Clases en config.py: {categorias}")
-        print(f"  Primeras 10 predicciones: {y_pred[:10]}")
-        print(f"  Primeras 10 reales: {list(y_test[:10])}")
-        print(f"  ¿Coinciden tipos? y_pred[0]={type(y_pred[0])}, y_test[0]={type(y_test[0])}")
-        print(f"  ¿Son iguales? {y_pred[0] == y_test[0]}")
-        # ===== FIN DEBUG =====
         
         metricas = calcular_metricas(y_test, y_pred, categorias)
         matriz = matriz_confusion(y_test, y_pred, categorias)
@@ -126,7 +117,7 @@ def calcular_metricas_promedio(metricas_folds):
     print(f"Accuracy: {accuracy_promedio:.3f} ± {accuracy_std:.3f}")
     print(f"Macro F1-Score: {macro_f1_promedio:.3f} ± {macro_f1_std:.3f}")
 
-    return metricas_promedio
+    return metricas_promedio, accuracy_promedio, macro_f1_promedio
 
 def entrenar_modelo_final(X, y):
     modelo_final = NaiveBayes(alpha=laplace_alpha)
@@ -160,6 +151,35 @@ def guardar_modelo(modelo, procesador, directorio = models_dir):
     print(f"Tamaño del modelo: {tamanio_modelo:.2f} KB")
     print(f"Tamaño del vocabulario: {tamanio_vocab:.2f} KB")
 
+def guardar_metricas(metricas_promedio, accuracy_promedio, macro_f1_promedio, directorio = models_dir):
+    os.makedirs(directorio, exist_ok=True)
+
+    metricas_json = {
+        'accuracy': round(float(accuracy_promedio), 4),
+        'macro_f1': round(float(macro_f1_promedio), 4),
+        'clases':{},
+        'dataset': {
+            'nombre': 'Bitext Customer Support',
+            'muestras': 26872,
+            'categorias': len(categorias),
+            'k_folds': k_folds,
+        }
+    }
+
+    for clase in categorias:
+        if clase in metricas_promedio:
+            metricas_json['clases'][clase] = {
+                'precision': round(float(metricas_promedio[clase]['precision']), 4),
+                'recall': round(float(metricas_promedio[clase]['recall']), 4),
+                'f1_score': round(float(metricas_promedio[clase]['f1_score']), 4),
+                'support': int(metricas_promedio[clase]['support'])
+            }
+    ruta_metricas = os.path.join(directorio, 'metricas.json')
+    with open(ruta_metricas, 'w', encoding='utf-8') as f:
+        json.dump(metricas_json, f, indent=2, ensure_ascii=False)
+
+    print(f"Métricas guardadas en: {ruta_metricas}")
+
 def main():
     print("Clasificador de tickets de soporte técnico - Naive Bayes")
     print("Entrenamiento con K-Folds Cross-Validation")
@@ -169,14 +189,18 @@ def main():
     X, procesador = procesar_dataset(df, columna_texto)
     y = df[columna_categorica].values
     metricas_folds, matrices_folds = ejecutar_kfolds(X, y, k=k_folds)
-    metricas_promedio = calcular_metricas_promedio(metricas_folds)
+    
+    metricas_promedio, accuracy_promedio, macro_f1_promedio = calcular_metricas_promedio(metricas_folds)
+    guardar_metricas(metricas_promedio, accuracy_promedio, macro_f1_promedio)
+
     modelo_final = entrenar_modelo_final(X, y)
     guardar_modelo(modelo_final, procesador)
 
     print("\nEntrenamiento finalizado")
     print("Resultados:")
-    print(f"Accuracy promedio: {metricas_promedio['accuracy']:.3f}")
-    print(f"Macro F1-Score promedio: {metricas_promedio['macro_f1']:.3f}")
+    print(f"Accuracy promedio: {accuracy_promedio:.3f}")
+    print(f"Macro F1-Score promedio: {macro_f1_promedio:.3f}")
+    print(f"Vocabulario: {len(modelo_final.vocabulario)} palabras")
     print(f"Modelo guardado en: {models_dir}")
 
 if __name__ == "__main__":

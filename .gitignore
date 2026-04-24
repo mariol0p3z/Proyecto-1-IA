@@ -56,6 +56,3 @@ desktop.ini
 
 # Cache de NLTK (se descarga automáticamente)
 nltk_data/
-
-# Modelos entrenados (cada quien genera el suyo)
-Backend/models/*.pkl

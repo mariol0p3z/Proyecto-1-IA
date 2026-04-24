@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify
 import joblib
 import sys
 import os
+import json
 
 #Agregar Backend al path para importar
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', 'Backend'))
@@ -62,6 +63,28 @@ def predecir():
 
         return jsonify(response)
     
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    
+@app.route('/metrics')
+def metrics():
+    return render_template('metrics.html')
+
+@app.route('/api/metrics')
+def api_metrics():
+    try:
+        metrics_path = os.path.join(
+            os.path.dirname(__file__), '..', 'Backend', 'models', 'metricas.json'
+        )
+        
+        with open(metrics_path, 'r', encoding='utf-8') as f:
+            metricas = json.load(f)
+        
+        return jsonify(metricas)
+    except FileNotFoundError:
+        return jsonify({
+            'error': 'Métricas no encontradas. Ejecuta train.py primero.'
+        }), 404
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
