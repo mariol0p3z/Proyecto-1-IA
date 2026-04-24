@@ -5,25 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Clasificación de Tickets</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>🎫 Sistema de Clasificación de Tickets</h1>
-            <p>Clasificador automático usando Naïve Bayes - Accuracy: 99.1%</p>
+            <h1>Sistema de Clasificación de Tickets</h1>
         </header>
         <nav class="navbar">
-            <a href="/" class="nav-link active">🎫 Clasificar Ticket</a>
-            <a href="/metrics" class="nav-link">📊 Métricas</a>
+            <a href="/" class="nav-link active">Clasificar Ticket</a>
+            <a href="/metrics" class="nav-link">Métricas</a>
         </nav>
         <main>
             <div class="form-section">
-                <h2>📋 Crear Nuevo Ticket de Soporte</h2>
+                <h2>Crear Nuevo Ticket de Soporte</h2>
                 
                 <form id="ticketForm">
-                    <!-- Ticket ID (autogenerado) -->
                     <div class="form-group">
-                        <label for="ticketId">🆔 ID del Ticket:</label>
+                        <label for="ticketId">ID del Ticket:</label>
                         <input 
                             type="text" 
                             id="ticketId" 
@@ -33,39 +34,35 @@
                             class="readonly-input"
                         >
                     </div>
-
-                    <!-- Subject -->
                     <div class="form-group">
-                        <label for="ticketSubject">📧 Asunto del Ticket:</label>
+                        <label for="ticketSubject">Asunto del Ticket:</label>
                         <input 
                             type="text" 
                             id="ticketSubject" 
                             name="subject" 
-                            placeholder="Ej: Problema con mi pedido #12345"
+                            placeholder=""
                             required
                         >
                     </div>
-
-                    <!-- Description -->
                     <div class="form-group">
-                        <label for="ticketText">📝 Descripción Detallada:</label>
+                        <label for="ticketText">Descripción Detallada:</label>
                         <textarea 
                             id="ticketText" 
                             name="text" 
                             rows="6" 
-                            placeholder="Ej: Realicé un pedido hace 10 días pero aún no ha llegado. El número de seguimiento no funciona y necesito saber el estado de mi envío..."
+                            placeholder=""
                             required
                         ></textarea>
                     </div>
 
                     <button type="submit" class="btn-primary">
-                        🔍 Clasificar Ticket
+                        Clasificar Ticket
                     </button>
                 </form>
             </div>
 
             <div id="result" class="result-section hidden">
-                <h2>✅ Resultado de la Clasificación</h2>
+                <h2>Resultado de la Clasificación</h2>
                 
                 <div class="ticket-info">
                     <p><strong>Ticket ID:</strong> <span id="resultTicketId"></span></p>
@@ -83,17 +80,17 @@
                     </div>
 
                     <div class="routing-info">
-                        <p>📬 <strong>Enrutado a:</strong> <span id="departamento"></span></p>
+                        <p><strong>Enrutado a:</strong> <span id="departamento"></span></p>
                     </div>
                 </div>
 
                 <div class="probabilidades-section">
-                    <h3>📊 Probabilidades por Categoría</h3>
+                    <h3>Probabilidades por Categoría</h3>
                     <div id="probabilidades" class="probabilidades-list"></div>
                 </div>
 
                 <button onclick="resetForm()" class="btn-secondary">
-                    ➕ Clasificar Otro Ticket
+                    Clasificar Otro Ticket
                 </button>
             </div>
 
@@ -105,14 +102,19 @@
             <div id="error" class="error-section hidden">
                 <p id="errorMessage"></p>
                 <button onclick="resetForm()" class="btn-secondary">
-                    🔄 Intentar de Nuevo
+                    Intentar de Nuevo
                 </button>
             </div>
         </main>
 
         <footer>
+            <div class = "footer-content">
             <p>Proyecto de Inteligencia Artificial - Universidad Rafael Landívar</p>
-            <p>Naïve Bayes implementado desde cero | Dataset: Bitext Customer Support (26,872 muestras)</p>
+            <p class = "team-names"> 
+                <strong>Desarrollado por:</strong>
+                Mario Lopez, Walter Herrera y Giancarlo Ortega
+            </p>
+            </div>
         </footer>
     </div>
 
@@ -144,11 +146,10 @@
             const subject = document.getElementById('ticketSubject').value;
             const text = document.getElementById('ticketText').value;
             
-            // Combinar subject + text para clasificación
             const fullText = subject + ". " + text;
             
-            console.log('📝 Ticket ID:', ticketId);
-            console.log('📝 Texto completo:', fullText);
+            console.log('Ticket ID:', ticketId);
+            console.log('Texto completo:', fullText);
             
             // Mostrar loading
             document.querySelector('.form-section').classList.add('hidden');
@@ -170,7 +171,7 @@
                 });
                 
                 const data = await response.json();
-                console.log('📊 Respuesta del servidor:', data);
+                console.log('Respuesta del servidor:', data);
                 
                 if (!response.ok) {
                     throw new Error(data.error || 'Error en la predicción');
@@ -211,7 +212,7 @@
                 resultDiv.classList.remove('hidden');
                 
             } catch (error) {
-                console.error('❌ Error:', error);
+                console.error('Error:', error);
                 loadingDiv.classList.add('hidden');
                 errorDiv.classList.remove('hidden');
                 document.getElementById('errorMessage').textContent = 

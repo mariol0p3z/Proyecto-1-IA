@@ -5,24 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Métricas del Modelo</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>📊 Métricas del Modelo</h1>
-            <p>Evaluación del Clasificador Naïve Bayes</p>
+            <h1>Métricas del Modelo</h1>
         </header>
 
         <nav class="navbar">
-            <a href="/" class="nav-link">🎫 Clasificar Ticket</a>
-            <a href="/metrics" class="nav-link active">📊 Métricas</a>
+            <a href="/" class="nav-link">Clasificar Ticket</a>
+            <a href="/metrics" class="nav-link active">Métricas</a>
         </nav>
 
         <main>
             <!-- Métricas Globales -->
             <section class="metrics-summary">
-                <h2>📈 Rendimiento Global</h2>
+                <h2>Rendimiento Global</h2>
                 <div class="metrics-cards">
                     <div class="metric-card">
                         <div class="metric-label">Accuracy</div>
@@ -45,7 +47,7 @@
 
             <!-- Gráfico de Métricas por Clase -->
             <section class="chart-section">
-                <h2>📊 Métricas por Categoría</h2>
+                <h2>Métricas por Categoría</h2>
                 <div class="chart-container">
                     <canvas id="metricsChart"></canvas>
                 </div>
@@ -53,7 +55,7 @@
 
             <!-- Tabla de Métricas -->
             <section class="table-section">
-                <h2>📋 Detalle por Categoría</h2>
+                <h2>Detalle por Categoría</h2>
                 <div class="table-container">
                     <table id="metricsTable">
                         <thead>
@@ -74,7 +76,7 @@
 
             <!-- Info del Dataset -->
             <section class="dataset-info">
-                <h2>📦 Información del Dataset</h2>
+                <h2>Información del Dataset</h2>
                 <div class="info-grid">
                     <div class="info-item">
                         <strong>Dataset:</strong> <span id="dataset-name">-</span>
@@ -83,7 +85,7 @@
                         <strong>K-Folds:</strong> <span id="k-folds">-</span>
                     </div>
                     <div class="info-item">
-                        <strong>Algoritmo:</strong> Naïve Bayes Multinomial
+                        <strong>Algoritmo:</strong> Naive Bayes Multinomial
                     </div>
                     <div class="info-item">
                         <strong>Preprocesamiento:</strong> Tokenización, Stopwords, Stemming
@@ -93,8 +95,13 @@
         </main>
 
         <footer>
+            <div class = "footer-content">
             <p>Proyecto de Inteligencia Artificial - Universidad Rafael Landívar</p>
-            <p>Naïve Bayes implementado desde cero</p>
+            <p class = "team-names"> 
+                <strong>Desarrollado por:</strong>
+                Mario Lopez, Walter Herrera y Giancarlo Ortega
+            </p>
+            </div>
         </footer>
     </div>
 
